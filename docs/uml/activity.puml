@@ -1,0 +1,36 @@
+@startuml
+skinparam activity {
+    BackgroundColor #F8F9FA
+    BorderColor #343A40
+    ArrowColor #2C3E50
+}
+skinparam swimlane {
+    BorderColor #343A40
+    TitleBackgroundColor #E9ECEF
+}
+
+|Client (SyncManager)|
+start
+:Select folder;
+:Scan local files;
+:Build SyncManifest;
+:Send manifest to server;
+
+|Server (FastAPI)|
+:Load user's files from DB;
+:Compare manifest vs DB;
+:Build SyncDelta;
+:Return SyncDelta;
+
+|Client (SyncManager)|
+:Receive SyncDelta;
+
+fork
+    :Upload missing files (to_upload);
+fork again
+    :Download missing files (to_download);
+end fork
+
+:Show sync result;
+stop
+@enduml

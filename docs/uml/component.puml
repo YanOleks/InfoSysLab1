@@ -1,0 +1,45 @@
+@startuml
+skinparam componentStyle uml2
+skinparam component {
+    BackgroundColor #FDFDFD
+    BorderColor #34495E
+    ArrowColor #2C3E50
+}
+skinparam packageStyle rectangle
+
+' Видалено skinparam linetype ortho, оскільки саме він спричиняє баг 
+' із "літаючими" стрілками (стрілки, що не торкаються компонентів) у Graphviz
+
+skinparam nodesep 50
+skinparam ranksep 50
+
+component "Desktop Client" as desktop
+component "Web Client" as web
+
+interface "HTTP / REST" as http
+
+package "Backend Server" {
+    component "REST API" as api
+    component "Auth Module" as auth
+    component "SQLite DB" as db
+    component "File Storage" as fs
+    
+    auth -[hidden]right- db
+    db -[hidden]right- fs
+}
+
+desktop -[hidden]right- web
+
+' Зв'язки клієнт-сервер
+desktop ..> http : requires
+web ..> http : requires
+http -down- api : provides
+
+' Зв'язки всередині бекенду
+api .down.> auth : validate tokens
+api .down.> db : file metadata
+api .down.> fs : binary data
+
+auth .right.> db : credentials
+
+@enduml

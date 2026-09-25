@@ -1,0 +1,26 @@
+__pycache__/
+*.pyc
+*.pyo
+server/storage/
+server/data.db
+node_modules/
+web/dist/
+.env
+*.egg-info/
+.pytest_cache/
+
+# Environment & Build
+.venv/
+venv/
+web/build/
+
+# Database
+*.sqlite3
+server/data.db-shm
+server/data.db-wal
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+*.swp

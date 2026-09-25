@@ -1,0 +1,24 @@
+@startuml
+skinparam state {
+    BackgroundColor #FDFDFD
+    BorderColor #34495E
+    ArrowColor #2C3E50
+}
+
+[*] --> LocalOnly : create locally
+[*] --> ServerOnly : remote file detected
+
+LocalOnly --> Syncing : upload
+ServerOnly --> Syncing : sync (download)
+Modified --> Syncing : sync (upload)
+
+Syncing --> Synced : success
+
+Synced --> Modified : edit
+
+LocalOnly --> [*] : delete
+ServerOnly --> [*] : delete
+Synced --> [*] : delete
+Modified --> [*] : delete
+
+@enduml

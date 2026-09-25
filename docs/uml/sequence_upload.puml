@@ -1,0 +1,48 @@
+@startuml
+skinparam sequence {
+    ArrowColor #2C3E50
+    ActorBorderColor #2C3E50
+    LifeLineBorderColor #34495E
+    LifeLineBackgroundColor #F8F9FA
+    ParticipantBorderColor #34495E
+    ParticipantBackgroundColor #FDFDFD
+}
+
+participant "Client" as client
+participant "FastAPI" as api
+participant "get_current_user" as auth
+participant "FileSystem" as fs
+participant "Database" as db
+
+client -> api : POST /files/upload (multipart + JWT)
+activate api
+
+api -> auth : Depends()
+activate auth
+auth --> api : return User
+deactivate auth
+
+alt file size > 50 MB
+    api --> client : 413 Payload Too Large
+else valid size
+    api -> fs : save file (storage/{user_id}/{filename})
+    activate fs
+    fs --> api : file saved successfully
+    deactivate fs
+
+    api -> db : INSERT/UPDATE file record
+    activate db
+    db --> api : return File record
+    deactivate db
+
+    api --> client : 200 OK {"msg": "Upload successful"}
+end
+
+deactivate api
+
+client -> api : GET /files (refresh_files)
+activate api
+api --> client : 200 OK + List[FileMetadata]
+deactivate api
+
+@enduml

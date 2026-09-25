@@ -1,0 +1,42 @@
+@startuml
+skinparam node {
+    BackgroundColor #FDFDFD
+    BorderColor #34495E
+}
+skinparam artifact {
+    BackgroundColor #E9ECEF
+    BorderColor #343A40
+}
+skinparam databaseBackgroundColor #FDFDFD
+skinparam folderBackgroundColor #FDFDFD
+
+node "Client PC" as pc <<device>> {
+    artifact "Desktop App (PySide6)" as desktop_app
+}
+
+node "User Browser" as browser <<device>> {
+    artifact "Web SPA (React)" as web_app
+}
+
+node "Localhost (Development Workspace)" as cloud <<device>> {
+    node "FastAPI Server" as server <<execution environment>> {
+        artifact "Backend Application" as backend_app
+    }
+    
+    database "SQLite DB" as db {
+        artifact "data.db"
+    }
+    
+    folder "File Storage Volume" as storage {
+        artifact "storage/"
+    }
+    
+    backend_app -down-> db : reads/writes (SQLAlchemy)
+    backend_app -down-> storage : reads/writes (aiofiles)
+}
+
+' Мережева взаємодія
+desktop_app .right.> backend_app : <<HTTP/REST>>\nPOST/GET
+web_app .right.> backend_app : <<HTTP/REST>>\nPOST/GET
+
+@enduml

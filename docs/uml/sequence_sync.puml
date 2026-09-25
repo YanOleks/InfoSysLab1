@@ -1,0 +1,44 @@
+@startuml
+skinparam sequence {
+    ArrowColor #2C3E50
+    ActorBorderColor #2C3E50
+    LifeLineBorderColor #34495E
+    LifeLineBackgroundColor #F8F9FA
+    ParticipantBorderColor #34495E
+    ParticipantBackgroundColor #FDFDFD
+}
+
+participant "Client" as client
+participant "FastAPI" as api
+participant "Database" as db
+
+client -> api : POST /files/sync (SyncManifest)
+activate api
+
+api -> db : SELECT files WHERE owner_id = user_id
+activate db
+db --> api : return List[File]
+deactivate db
+
+api -> api : compare manifest vs DB
+activate api
+deactivate api
+
+api --> client : return SyncDelta
+deactivate api
+
+loop for each file in to_upload
+    client -> api : POST /files/upload (multipart)
+    activate api
+    api --> client : 200 OK
+    deactivate api
+end
+
+loop for each file in to_download
+    client -> api : GET /files/{id}/download
+    activate api
+    api --> client : File Stream
+    deactivate api
+end
+
+@enduml

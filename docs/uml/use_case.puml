@@ -1,0 +1,54 @@
+@startuml
+left to right direction
+skinparam actorStyle hollow
+skinparam usecase {
+    BackgroundColor #F0F8FF
+    BorderColor #4682B4
+    ArrowColor #708090
+}
+skinparam rectangle {
+    BorderColor #708090
+    BackgroundColor #FAFAFA
+}
+
+actor "User" as user
+actor "Server API" as server <<Secondary>>
+
+rectangle "File Management Client" {
+    usecase "Register Account" as UC_Reg
+    usecase "Log In" as UC_Login
+    usecase "Manage Dashboard View" as UC_Dash
+    
+    usecase "File Operation" as UC_FileOp
+    usecase "Upload File" as UC_Upload
+    usecase "Download File" as UC_Download
+    usecase "Delete File" as UC_Delete
+    usecase "Preview File" as UC_Preview
+    
+    usecase "Synchronize Folder" as UC_Sync
+}
+
+' Жорстке вертикальне вирівнювання (up) для генералізації
+UC_Upload -up-|> UC_FileOp
+UC_Download -up-|> UC_FileOp
+UC_Delete -up-|> UC_FileOp
+UC_Preview -up-|> UC_FileOp
+
+' Зв'язки первинного актора
+user -- UC_Reg
+user -- UC_Login
+user -- UC_Dash
+user -- UC_FileOp
+user -- UC_Sync
+
+' Залежності авторизації
+UC_Dash .> UC_Login : <<include>>
+UC_FileOp .> UC_Login : <<include>>
+UC_Sync .> UC_Login : <<include>>
+
+' Secondary Actor relationships
+UC_Reg -- server
+UC_Login -- server
+UC_FileOp -- server
+UC_Sync -- server
+@enduml

@@ -1,0 +1,91 @@
+@startuml
+skinparam class {
+    BackgroundColor #F8F9FA
+    ArrowColor #343A40
+    BorderColor #495057
+}
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+package "Client Layer" {
+    class FileTableView <<boundary>> {
+        + render_table() : void
+        + refresh() : void
+    }
+
+    class SyncManager <<control>> {
+        - local_folder : str
+        + select_folder() : str
+        + scan_folder() : SyncManifest
+        + sync() : SyncResult
+    }
+
+    class ApiClient <<boundary>> {
+        - base_url : str
+        - token : str
+        + login(username, password) : str
+        + register(username, password) : void
+        + list_files() : List[FileMetadata]
+        + upload_file(filepath: str) : void
+        + download_file(file_id: int, save_path: str) : void
+        + delete_file(file_id: int) : void
+        + sync(manifest: SyncManifest) : SyncDelta
+    }
+}
+
+package "Server API Layer (FastAPI)" {
+    class auth_router <<router>> {
+        - SECRET_KEY : str
+        + hash_password(password: str) : str
+        + verify_password(plain: str, hashed: str) : bool
+        + create_access_token(data: dict) : str
+        + get_current_user(token: str) : User
+    }
+
+    class files_router <<router>> {
+        + list_files(user: User) : List[File]
+        + upload_file(user: User, file: UploadFile) : dict
+        + download_file(user: User, file_id: int) : FileResponse
+        + delete_file(user: User, file_id: int) : void
+        + sync(user: User, manifest: SyncManifest) : SyncDelta
+    }
+}
+
+package "Database Layer (ORM)" {
+    class User <<entity>> {
+        - id : int
+        + username : str
+        - password_hash : str
+        + created_at : String
+    }
+
+    class File <<entity>> {
+        - id : int
+        - owner_id : int
+        + filename : str
+        + extension : str
+        + file_size : int
+        - storage_path : str
+        + created_at : String
+        + updated_at : String
+        - uploaded_by : int
+        - last_modified_by : int
+    }
+}
+
+' Зв'язки на клієнті
+FileTableView ..> ApiClient : calls >
+SyncManager *-- ApiClient : contains >
+
+' Клієнт-серверна взаємодія
+ApiClient ..> auth_router : <<HTTP REST>>
+ApiClient ..> files_router : <<HTTP REST>>
+
+' Бізнес-логіка та ORM
+auth_router ..> User : authenticates >
+files_router ..> File : manages >
+files_router ..> User : verifies owner >
+
+' Зв'язок у базі даних (ON DELETE CASCADE)
+User "1" *--down- "0..*" File : owns >
+@enduml

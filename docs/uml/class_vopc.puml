@@ -1,0 +1,38 @@
+@startuml
+skinparam class {
+    BackgroundColor #FDFDFD
+    ArrowColor #2C3E50
+    BorderColor #34495E
+}
+skinparam linetype ortho
+
+class FileTableView <<boundary>> {
+    - current_sort : str
+    - current_filter : str
+    + on_header_click(column: str) : void
+    + on_filter_change(filter: str) : void
+    + render_table(files: List[File]) : void
+}
+
+class QSortFilterProxyModel <<control>> {
+    + sort(column: int, order: SortOrder) : void
+    + setFilterRegExp(pattern: str) : void
+}
+
+class File <<entity>> {
+    - id : int
+    + filename : str
+    + extension : str
+    + file_size : int
+    + created_at : String
+    + updated_at : String
+    + uploaded_by : int
+    + last_modified_by : int
+}
+
+' Зв'язки патерну BCE
+FileTableView -right-> QSortFilterProxyModel : delegates >
+QSortFilterProxyModel -right-> File : processes >
+FileTableView .down.> File : displays >
+
+@enduml
