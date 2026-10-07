@@ -3,7 +3,7 @@ import os
 from typing import Optional, Union, Tuple, List
 
 class ApiClient:
-    def __init__(self, base_url: str = "http://localhost:8000"):
+    def __init__(self, base_url: str = "https://infosyslab1.onrender.com/"):
         self.base_url = base_url
         self.token: Optional[str] = None
         self.client = httpx.Client(base_url=base_url, timeout=30.0)

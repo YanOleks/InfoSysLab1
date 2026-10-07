@@ -8,7 +8,7 @@ export default function UploadButton({ onUploadComplete }) {
     name: 'file',
     multiple: false,
     showUploadList: false,
-    action: 'http://localhost:8000/files/upload',
+    action: 'https://infosyslab1.onrender.com/files/upload',
     headers: {
       Authorization: `Bearer ${localStorage.getItem('token')}`,
     },
