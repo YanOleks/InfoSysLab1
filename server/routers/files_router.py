@@ -34,11 +34,9 @@ def list_files(
     .filter(File.owner_id == current_user.id)
         
     if filter_ext:
-        # e.g. "js_png" -> [".js", ".png"]
         allowed_exts = [f".{ext}" for ext in filter_ext.split("_")]
         query = query.filter(File.extension.in_(allowed_exts))
         
-    # Sorting
     if hasattr(File, sort_by):
         sort_col = getattr(File, sort_by)
         if sort_order == "desc":

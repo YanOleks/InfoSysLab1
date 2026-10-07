@@ -8,33 +8,39 @@ skinparam packageStyle rectangle
 skinparam linetype ortho
 
 package "Client Layer" {
-    class FileTableView <<boundary>> {
-        + render_table() : void
-        + refresh() : void
+    class MainWindow <<boundary>> {
+        - table_view : QTableView
+        - filter_combo : QComboBox
+        + refresh_files() : void
+        + _setup_table() : void
     }
 
     class SyncManager <<control>> {
+        - api : ApiClient
+        - parent : QMainWindow
         - local_folder : str
         + select_folder() : str
-        + scan_folder() : SyncManifest
-        + sync() : SyncResult
+        + scan_folder() : List[dict]
+        + sync() : dict
+        + run_sync() : void
     }
 
     class ApiClient <<boundary>> {
         - base_url : str
         - token : str
         + login(username, password) : str
-        + register(username, password) : void
-        + list_files() : List[FileMetadata]
-        + upload_file(filepath: str) : void
+        + register(username, password) : dict
+        + list_files(sort_by: str, sort_order: str, filter_ext: str) : List[dict]
+        + upload_file(filepath: str) : dict
         + download_file(file_id: int, save_path: str) : void
         + delete_file(file_id: int) : void
-        + sync(manifest: SyncManifest) : SyncDelta
+        + preview_file(file_id: int) : Tuple
+        + sync(manifest: List[dict]) : dict
     }
 }
 
 package "Server API Layer (FastAPI)" {
-    class auth_router <<router>> {
+    class auth <<module>> {
         - SECRET_KEY : str
         + hash_password(password: str) : str
         + verify_password(plain: str, hashed: str) : bool
@@ -42,12 +48,18 @@ package "Server API Layer (FastAPI)" {
         + get_current_user(token: str) : User
     }
 
+    class auth_router <<router>> {
+        + register_user(user_data: UserCreate) : dict
+        + login_user(user_data: UserLogin) : TokenResponse
+    }
+
     class files_router <<router>> {
-        + list_files(user: User) : List[File]
+        + list_files(sort_by: str, sort_order: str, filter_ext: str, user: User) : List[FileMetadata]
         + upload_file(user: User, file: UploadFile) : dict
         + download_file(user: User, file_id: int) : FileResponse
-        + delete_file(user: User, file_id: int) : void
-        + sync(user: User, manifest: SyncManifest) : SyncDelta
+        + delete_file(user: User, file_id: int) : dict
+        + preview_file(user: User, file_id: int) : dict
+        + sync_files(user: User, manifest: SyncManifest) : SyncDelta
     }
 }
 
@@ -73,19 +85,16 @@ package "Database Layer (ORM)" {
     }
 }
 
-' Зв'язки на клієнті
-FileTableView ..> ApiClient : calls >
+MainWindow ..> ApiClient : calls >
 SyncManager *-- ApiClient : contains >
 
-' Клієнт-серверна взаємодія
 ApiClient ..> auth_router : <<HTTP REST>>
 ApiClient ..> files_router : <<HTTP REST>>
 
-' Бізнес-логіка та ORM
+auth_router ..> auth : uses >
 auth_router ..> User : authenticates >
 files_router ..> File : manages >
 files_router ..> User : verifies owner >
 
-' Зв'язок у базі даних (ON DELETE CASCADE)
 User "1" *--down- "0..*" File : owns >
 @enduml

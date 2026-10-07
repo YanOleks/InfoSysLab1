@@ -35,7 +35,6 @@ node "Localhost (Development Workspace)" as cloud <<device>> {
     backend_app -down-> storage : reads/writes (aiofiles)
 }
 
-' Мережева взаємодія
 desktop_app .right.> backend_app : <<HTTP/REST>>\nPOST/GET
 web_app .right.> backend_app : <<HTTP/REST>>\nPOST/GET
 
