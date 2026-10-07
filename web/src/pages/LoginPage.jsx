@@ -40,7 +40,11 @@ export default function LoginPage({ onLogin }) {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f0f2f5' }}>
+<<<<<<< HEAD
       <Card title="Lightweight Drive" style={{ width: 400 }}>
+=======
+      <Card title="Lightweight Google Drive" style={{ width: 400 }}>
+>>>>>>> f84bf75c1fa61838f7926e4caa921030f5e96805
         <Form form={form} layout="vertical">
           <Form.Item name="username" label="Username" rules={[{ required: true, message: 'Please input your username!' }]}>
             <Input />
