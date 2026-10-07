@@ -6,17 +6,15 @@ skinparam class {
 }
 skinparam linetype ortho
 
-class FileTableView <<boundary>> {
-    - current_sort : str
-    - current_filter : str
-    + on_header_click(column: str) : void
-    + on_filter_change(filter: str) : void
-    + render_table(files: List[File]) : void
+class MainWindow <<boundary>> {
+    - table_view : QTableView
+    - filter_combo : QComboBox
+    + refresh_files() : void
+    + _setup_table() : void
 }
 
 class QSortFilterProxyModel <<control>> {
     + sort(column: int, order: SortOrder) : void
-    + setFilterRegExp(pattern: str) : void
 }
 
 class File <<entity>> {
@@ -30,9 +28,8 @@ class File <<entity>> {
     + last_modified_by : int
 }
 
-' Зв'язки патерну BCE
-FileTableView -right-> QSortFilterProxyModel : delegates >
+MainWindow -right-> QSortFilterProxyModel : delegates sorting >
 QSortFilterProxyModel -right-> File : processes >
-FileTableView .down.> File : displays >
+MainWindow .down.> File : displays >
 
 @enduml

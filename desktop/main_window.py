@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
     def __init__(self, api_client):
         super().__init__()
         self.api_client = api_client
-        self.setWindowTitle("Lightweight Google Drive")
+        self.setWindowTitle("Lightweight Drive")
         self.resize(800, 600)
         self.setAcceptDrops(True)
         

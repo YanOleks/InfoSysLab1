@@ -7,9 +7,6 @@ skinparam component {
 }
 skinparam packageStyle rectangle
 
-' Видалено skinparam linetype ortho, оскільки саме він спричиняє баг 
-' із "літаючими" стрілками (стрілки, що не торкаються компонентів) у Graphviz
-
 skinparam nodesep 50
 skinparam ranksep 50
 
@@ -30,12 +27,10 @@ package "Backend Server" {
 
 desktop -[hidden]right- web
 
-' Зв'язки клієнт-сервер
 desktop ..> http : requires
 web ..> http : requires
 http -down- api : provides
 
-' Зв'язки всередині бекенду
 api .down.> auth : validate tokens
 api .down.> db : file metadata
 api .down.> fs : binary data
